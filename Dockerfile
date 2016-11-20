@@ -94,7 +94,7 @@ RUN \
   && apk --no-cache del ${build_pkgs} \
   && apk --no-cache add ${runtime_pkgs} \
   && addgroup -g $EGID ng-group \
-  && adduser -DH -u $EUID ng-user \
+  && adduser -D -u $EUID ng-user \
   && ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
 
