@@ -1,7 +1,7 @@
 #!/bin/sh
 
-GRP=`id -n -g $EGID`
-USR=`id -n -u $EUID`
+GRP=`getent group $EGID | cut -d ':' -f 1`
+USR=`getent passwd $EUID | cut -d ':' -f 1`
 
 if [ x$GRP == x ]; then
     addgroup -g $EGID g
