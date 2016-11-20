@@ -6,6 +6,7 @@ ARG LIBRESSL_VERSION=2.5.0
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.0
 ARG LUA_NGINX_MODULE_VERSION=0.10.7
+ARG LUAJIT_MAIN_VERSION=2.1.0
 ARG LUAJIT_VERSION=2.1.0-beta2
 
 ARG NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
@@ -19,14 +20,12 @@ ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
 RUN \
   build_pkgs="build-base linux-headers pcre-dev curl zlib-dev gnupg geoip-dev libxslt-dev perl-dev gd-dev" \
-  && runtime_pkgs="ca-certificates pcre zlib" \
-  && apk --no-cache add ${build_pkgs} ${runtime_pkgs} \
+  && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc" \
+  && apk --no-cache add ${runtime_pkgs} ${build_pkgs} \
   && for key in $GPG_KEYS; do \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-     done
-
-RUN \
-  mkdir -p /tmp/luajit \
+     done \
+  && mkdir -p /tmp/luajit \
   && cd /tmp/luajit \
   && curl -L https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
   && curl -L https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
@@ -36,6 +35,7 @@ RUN \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
   && cd /tmp/luajit/LuaJIT-${LUAJIT_VERSION} \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
+  && rm -f $LUAJIT_LIB/libluajit-*.so* \
   && mkdir /tmp/libressl \
   && cd /tmp/libressl \
   && curl -fSL http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz -o libressl.tar.gz \
@@ -51,7 +51,8 @@ RUN \
     --user=www-data \
     --group=www-data \
     --sbin-path=/usr/sbin/nginx \
-    --with-ld-opt='-Wl,-rpath,$LUAJIT_LIB -lrt' \
+    --with-cc-opt='-O3 -s' \
+    --with-ld-opt='-Wl,-static,-lluajit-5.1 -Wl,-Bdynamic,-ldl,-lz' \
     --with-http_ssl_module \
     --with-openssl=/tmp/libressl/libressl-${LIBRESSL_VERSION} \
     --with-http_realip_module \
@@ -90,6 +91,7 @@ RUN \
   && rm -rf /tmp/ /root/.gnupg \
   && strip -s /usr/sbin/nginx \
   && apk --no-cache del ${build_pkgs} \
+  && apk --no-cache add ${runtime_pkgs} \
   && adduser -D www-data \
   && ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
