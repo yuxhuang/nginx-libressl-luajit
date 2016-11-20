@@ -18,9 +18,6 @@ ARG GPG_KEYS=A1EB079B8D3EB92B4EBD3139663AF51BD5E4D8D5
 ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
-ENV EUID 11000
-ENV EGID 21000
-
 RUN \
   build_pkgs="build-base linux-headers pcre-dev curl zlib-dev gnupg geoip-dev libxslt-dev perl-dev gd-dev" \
   && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc" \
@@ -51,8 +48,8 @@ RUN \
   && tar -zxf nginx.tar.gz \
   && cd nginx-*/ \
   && ./configure \
-    --user=ng-user \
-    --group=ng-group \
+    --user=g \
+    --group=r \
     --sbin-path=/usr/sbin/nginx \
     --with-cc-opt='-O3 -s' \
     --with-ld-opt='-Wl,-static,-lluajit-5.1 -Wl,-Bdynamic,-ldl,-lz' \
@@ -93,8 +90,6 @@ RUN \
   && strip -s /usr/sbin/nginx \
   && apk --no-cache del ${build_pkgs} \
   && apk --no-cache add ${runtime_pkgs} \
-  && addgroup -g $EGID ng-group \
-  && adduser -D -u $EUID ng-user \
   && ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
 
@@ -102,4 +97,7 @@ RUN \
 # ***** CLEANUP *****
 EXPOSE 80 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ADD entry.sh /
+
+ENTRYPOINT ["/entry.sh"]
+
