@@ -85,6 +85,8 @@ RUN \
   && make install \
   && make clean \
   && rm -rf /tmp/ /root/.gnupg \
+  && rm -rf $LUAJIT_LIB/libluajit-5.1.a \
+  && rm -rf $LUAJIT_INC \
   && strip -s /usr/sbin/nginx \
   && apk --no-cache del ${build_pkgs} \
   && apk --no-cache add ${runtime_pkgs} \
