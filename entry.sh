@@ -13,4 +13,4 @@ if [ x$USR == x ]; then
     USR=r
 fi
 
-/usr/sbin/nginx -g "daemon off; user $USR $GRP;"
+exec /usr/sbin/nginx -g "daemon off; user $USR $GRP;"
