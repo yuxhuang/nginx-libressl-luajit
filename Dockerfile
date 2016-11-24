@@ -8,9 +8,11 @@ ARG NGINX_DEVEL_KIT_VERSION=0.3.0
 ARG LUA_NGINX_MODULE_VERSION=0.10.7
 ARG LUAJIT_MAIN_VERSION=2.1.0
 ARG LUAJIT_VERSION=2.1.0-beta2
+ARG UPSTREAM_HC_VERSION=0.3.0
 
 ARG NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ARG LUA_NGINX_MODULE=lua-nginx-module-${LUA_NGINX_MODULE_VERSION}
+ARG UPSTREAM_HC_MODULE=nginx_upstream_check_module-${UPSTREAM_HC_VERSION}
 ARG NGINX_ROOT=/etc/nginx
 ARG WEB_DIR=/www
 ARG GPG_KEYS=A1EB079B8D3EB92B4EBD3139663AF51BD5E4D8D5
@@ -30,9 +32,11 @@ RUN \
   && curl -L https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
   && curl -L https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
   && curl -L https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -o ${LUA_NGINX_MODULE}.tar.gz \
+  && curl -L https://github.com/yaoweibin/nginx_upstream_check_module/archive/v${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
   && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
+  && tar -xzvf ${UPSTREAM_HC_MODULE}.tar.gz && rm ${UPSTREAM_HC_MODULE}.tar.gz \
   && cd /tmp/luajit/LuaJIT-${LUAJIT_VERSION} \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
@@ -72,13 +76,12 @@ RUN \
     --with-http_geoip_module \
     --with-mail \
     --with-mail_ssl_module \
-    --with-file-aio \
     --with-ipv6 \
-    --with-threads \
     --with-http_v2_module \
     --prefix=/etc/nginx \
     --http-log-path=/var/log/nginx/access.log \
     --error-log-path=/var/log/nginx/error.log \
+    --add-module=/tmp/luajit/$UPSTREAM_HC_MODULE \
     --add-module=/tmp/luajit/$NGINX_DEVEL_KIT \
     --add-module=/tmp/luajit/$LUA_NGINX_MODULE \
   && make -j $(getconf _NPROCESSORS_ONLN) \
