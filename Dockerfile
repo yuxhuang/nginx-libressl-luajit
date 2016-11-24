@@ -8,7 +8,7 @@ ARG NGINX_DEVEL_KIT_VERSION=0.3.0
 ARG LUA_NGINX_MODULE_VERSION=0.10.7
 ARG LUAJIT_MAIN_VERSION=2.1.0
 ARG LUAJIT_VERSION=2.1.0-beta2
-ARG UPSTREAM_HC_VERSION=0.3.0
+ARG UPSTREAM_HC_VERSION=master
 
 ARG NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ARG LUA_NGINX_MODULE=lua-nginx-module-${LUA_NGINX_MODULE_VERSION}
@@ -32,7 +32,7 @@ RUN \
   && curl -fSL https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
   && curl -fSL https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
   && curl -fSL https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -o ${LUA_NGINX_MODULE}.tar.gz \
-  && curl -fSL https://github.com/yaoweibin/nginx_upstream_check_module/archive/v${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
+  && curl -fSL https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
   && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
@@ -51,6 +51,7 @@ RUN \
   && curl -fSL https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -o nginx.tar.gz \
   && tar -zxf nginx.tar.gz \
   && cd nginx-*/ \
+  && patch -p0 /tmp/luajit/${UPSTREAM_HC_MODULE}/check_1.11.5+.patch \
   && ./configure \
     --user=g \
     --group=r \
