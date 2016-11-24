@@ -29,10 +29,10 @@ RUN \
      done \
   && mkdir -p /tmp/luajit \
   && cd /tmp/luajit \
-  && curl -L https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
-  && curl -L https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
-  && curl -L https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -o ${LUA_NGINX_MODULE}.tar.gz \
-  && curl -L https://github.com/yaoweibin/nginx_upstream_check_module/archive/v${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
+  && curl -fSL https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
+  && curl -fSL https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
+  && curl -fSL https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -o ${LUA_NGINX_MODULE}.tar.gz \
+  && curl -fSL https://github.com/yaoweibin/nginx_upstream_check_module/archive/v${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
   && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
