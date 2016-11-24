@@ -51,7 +51,7 @@ RUN \
   && curl -fSL https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -o nginx.tar.gz \
   && tar -zxf nginx.tar.gz \
   && cd nginx-*/ \
-  && patch -p0 /tmp/luajit/${UPSTREAM_HC_MODULE}/check_1.11.5+.patch \
+  && patch -p0 /tmp/luajit/${UPSTREAM_HC_MODULE}/check_1.9.2+.patch \
   && ./configure \
     --user=g \
     --group=r \
