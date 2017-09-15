@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM alpine:3.5
 MAINTAINER felix@eworks.io
 
 ARG NGINX_VERSION=1.13.5
