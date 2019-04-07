@@ -22,7 +22,7 @@ ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
 RUN \
   build_pkgs="build-base linux-headers pcre-dev curl zlib-dev gnupg geoip-dev libxslt-dev perl-dev gd-dev" \
-  && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc" \
+  && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc certbot certbot-nginx" \
   && apk --no-cache add ${runtime_pkgs} ${build_pkgs} \
   && for key in $GPG_KEYS; do \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
