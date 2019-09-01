@@ -1,8 +1,8 @@
 FROM alpine:3.10
 MAINTAINER felix@eworks.io
 
-ARG NGINX_VERSION=1.16.1
-ARG LIBRESSL_VERSION=2.9.2
+ARG NGINX_VERSION=1.14.2
+ARG LIBRESSL_VERSION=2.8.3
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
 ARG LUA_NGINX_MODULE_VERSION=0.10.15
@@ -14,7 +14,7 @@ ARG UPSTREAM_HC_VERSION=master
 ARG NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ARG LUA_NGINX_MODULE=lua-nginx-module-${LUA_NGINX_MODULE_VERSION}
 ARG UPSTREAM_HC_MODULE=nginx_upstream_check_module-${UPSTREAM_HC_VERSION}
-ARG NGINX_RTMP_MODULE=nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}}
+ARG NGINX_RTMP_MODULE=nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION}
 ARG NGINX_ROOT=/etc/nginx
 ARG WEB_DIR=/www
 ARG GPG_KEYS=A1EB079B8D3EB92B4EBD3139663AF51BD5E4D8D5
@@ -56,7 +56,8 @@ RUN \
   && tar -zxf nginx.tar.gz \
   && cd nginx-*/ \
   && patch -p0 /tmp/luajit/${UPSTREAM_HC_MODULE}/check_1.14.0+.patch \
-  && ./configure \
+  && CFLAGS="-Wno-implicit-fallthrough" ./configure \
+    --with-cc-opt="-Wno-implicit-fallthrough" \
     --user=g \
     --group=r \
     --sbin-path=/usr/sbin/nginx \
