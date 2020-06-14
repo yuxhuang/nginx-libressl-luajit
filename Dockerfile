@@ -2,7 +2,7 @@ FROM alpine:3.12
 MAINTAINER felix@eworks.io
 
 ARG NGINX_VERSION=1.18.0
-ARG LIBRESSL_VERSION=3.1.2
+ARG LIBRESSL_VERSION=3.2.0
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
 ARG LUA_NGINX_MODULE_VERSION=0.10.15
@@ -28,16 +28,13 @@ ADD https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.t
 ADD https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz /tmp/luajit/${LUA_NGINX_MODULE}.tar.gz
 ADD https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz /tmp/luajit/${UPSTREAM_HC_MODULE}.tar.gz
 ADD https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz /tmp/luajit/${NGINX_RTMP_MODULE}.tar.gz
-ADD http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz /tmp/libressl/libressl.tar.gz
-ADD http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz.asc /tmp/libressl/libressl.tar.gz.asc
+ADD https://cloudflare.cdn.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz /tmp/libressl/libressl.tar.gz
+ADD https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz /tmp/src/nginx.tar.gz
 
 RUN \
-  build_pkgs="build-base linux-headers pcre-dev curl zlib-dev gnupg geoip-dev libxslt-dev perl-dev gd-dev" \
+  build_pkgs="build-base linux-headers pcre-dev curl zlib-dev geoip-dev libxslt-dev perl-dev gd-dev" \
   && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc certbot certbot-nginx" \
   && apk --no-cache add ${runtime_pkgs} ${build_pkgs} \
-  && for key in $GPG_KEYS; do \
-        gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-     done \
   && cd /tmp/luajit \
   && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
@@ -48,11 +45,8 @@ RUN \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
   && cd /tmp/libressl \
-  && gpg --batch --verify libressl.tar.gz.asc libressl.tar.gz \
   && tar -zxf libressl.tar.gz \
-  && mkdir -p /tmp/src \
   && cd /tmp/src \
-  && curl -fSL https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -o nginx.tar.gz \
   && tar -zxf nginx.tar.gz \
   && cd nginx-*/ \
   && patch -p0 /tmp/luajit/${UPSTREAM_HC_MODULE}/check_1.14.0+.patch \
