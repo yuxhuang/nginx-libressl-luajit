@@ -1,8 +1,8 @@
-FROM alpine:3.10
+FROM alpine:3.12
 MAINTAINER felix@eworks.io
 
-ARG NGINX_VERSION=1.16.1
-ARG LIBRESSL_VERSION=2.8.3
+ARG NGINX_VERSION=1.18.0
+ARG LIBRESSL_VERSION=3.1.2
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
 ARG LUA_NGINX_MODULE_VERSION=0.10.15
@@ -22,6 +22,15 @@ ARG GPG_KEYS=A1EB079B8D3EB92B4EBD3139663AF51BD5E4D8D5
 ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
+
+ADD https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz /tmp/luajit/
+ADD https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz /tmp/luajit/${NGINX_DEVEL_KIT}.tar.gz
+ADD https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz /tmp/luajit/${LUA_NGINX_MODULE}.tar.gz
+ADD https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz /tmp/luajit/${UPSTREAM_HC_MODULE}.tar.gz
+ADD https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz /tmp/luajit/${NGINX_RTMP_MODULE}.tar.gz
+ADD http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz /tmp/libressl/libressl.tar.gz
+ADD http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz.asc /tmp/libressl/libressl.tar.gz.asc
+
 RUN \
   build_pkgs="build-base linux-headers pcre-dev curl zlib-dev gnupg geoip-dev libxslt-dev perl-dev gd-dev" \
   && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc certbot certbot-nginx" \
@@ -29,13 +38,7 @@ RUN \
   && for key in $GPG_KEYS; do \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
      done \
-  && mkdir -p /tmp/luajit \
   && cd /tmp/luajit \
-  && curl -fSL https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz -O \
-  && curl -fSL https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz -o ${NGINX_DEVEL_KIT}.tar.gz \
-  && curl -fSL https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz -o ${LUA_NGINX_MODULE}.tar.gz \
-  && curl -fSL https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz -o ${UPSTREAM_HC_MODULE}.tar.gz \
-  && curl -fSL https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz -o ${NGINX_RTMP_MODULE}.tar.gz \
   && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
@@ -44,10 +47,7 @@ RUN \
   && cd /tmp/luajit/LuaJIT-${LUAJIT_VERSION} \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
-  && mkdir /tmp/libressl \
   && cd /tmp/libressl \
-  && curl -fSL http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz -o libressl.tar.gz \
-  && curl -fSL http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz.asc -o libressl.tar.gz.asc \
   && gpg --batch --verify libressl.tar.gz.asc libressl.tar.gz \
   && tar -zxf libressl.tar.gz \
   && mkdir -p /tmp/src \
