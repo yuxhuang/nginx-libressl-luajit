@@ -5,9 +5,8 @@ ARG NGINX_VERSION=1.18.0
 ARG LIBRESSL_VERSION=3.1.3
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
-ARG LUA_NGINX_MODULE_VERSION=0.10.15
-ARG LUAJIT_MAIN_VERSION=2.1.0
-ARG LUAJIT_VERSION=2.1.0-beta3
+ARG LUA_NGINX_MODULE_VERSION=0.10.16rc5
+ARG LUAJIT_VERSION=v2.1-agentzh
 ARG NGINX_RTMP_MODULE_VERSION=1.2.1
 ARG UPSTREAM_HC_VERSION=master
 ARG QUICHE_VERSION=147bdf95a784eaaaaffe66d7a1fef505f516ddf3
@@ -26,27 +25,29 @@ ARG runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc certbot cert
 ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
-ADD https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz /tmp/luajit/
 ADD https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz /tmp/luajit/${NGINX_DEVEL_KIT}.tar.gz
-#ADD https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz /tmp/luajit/${LUA_NGINX_MODULE}.tar.gz
+ADD https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz /tmp/luajit/${LUA_NGINX_MODULE}.tar.gz
 ADD https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz /tmp/luajit/${UPSTREAM_HC_MODULE}.tar.gz
 ADD https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_MODULE_VERSION}.tar.gz /tmp/luajit/${NGINX_RTMP_MODULE}.tar.gz
-ADD https://cloudflare.cdn.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz /tmp/libressl/libressl.tar.gz
+#ADD https://cloudflare.cdn.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz /tmp/libressl/libressl.tar.gz
 ADD https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz /tmp/src/nginx.tar.gz
 
 RUN apk --no-cache add ${runtime_pkgs} ${build_pkgs}
 
 RUN cd /tmp/luajit \
-  && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
+  && git clone https://github.com/openresty/luajit2.git \
+  && cd luajit2 \
+  && git checkout ${LUAJIT_VERSION}
+
+RUN cd /tmp/luajit \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
-  #&& tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
+  && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
   && tar -xzvf ${UPSTREAM_HC_MODULE}.tar.gz && rm ${UPSTREAM_HC_MODULE}.tar.gz \
   && tar -xzvf ${NGINX_RTMP_MODULE}.tar.gz && rm ${NGINX_RTMP_MODULE}.tar.gz \
-  && cd /tmp/luajit/LuaJIT-${LUAJIT_VERSION} \
+  && cd /tmp/luajit/luajit2 \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
-  && cd /tmp/libressl \
-  && tar -zxf libressl.tar.gz \
+  #&& tar -zxf libressl.tar.gz \
   && cd /tmp/src \
   && tar -zxf nginx.tar.gz
 
@@ -97,7 +98,7 @@ RUN cd /tmp/src/nginx-* \
     --error-log-path=/var/log/nginx/error.log \
     --add-module=/tmp/luajit/$UPSTREAM_HC_MODULE \
     --add-module=/tmp/luajit/$NGINX_DEVEL_KIT \
-    #--add-module=/tmp/luajit/$LUA_NGINX_MODULE \
+    --add-module=/tmp/luajit/$LUA_NGINX_MODULE \
     --add-module=/tmp/luajit/${NGINX_RTMP_MODULE} \
   && make -j $(getconf _NPROCESSORS_ONLN) \
   && make install \
