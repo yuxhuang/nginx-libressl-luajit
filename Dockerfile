@@ -74,6 +74,7 @@ RUN \
     --with-http_image_filter_module \
     --with-http_xslt_module \
     --with-http_geoip_module \
+    --with-stream \
     --with-mail \
     --with-mail_ssl_module \
     --with-ipv6 \
