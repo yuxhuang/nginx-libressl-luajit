@@ -1,12 +1,12 @@
 FROM alpine:3.12
-MAINTAINER felix@eworks.io
+LABEL maintainer="gzfelix@gmail.com"
 
 ARG NGINX_VERSION=1.18.0
-ARG LIBRESSL_VERSION=3.2.0
+ARG LIBRESSL_VERSION=3.2.3
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
 ARG LUA_NGINX_MODULE_VERSION=0.10.15
-ARG LUAJIT_MAIN_VERSION=2.1.0
+ARG LUAJIT_MAIN_VERSION=2.1-agentzh
 ARG LUAJIT_VERSION=2.1.0-beta3
 ARG NGINX_RTMP_MODULE_VERSION=1.2.1
 ARG UPSTREAM_HC_VERSION=master
@@ -23,7 +23,7 @@ ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.1
 
 
-ADD https://luajit.org/download/LuaJIT-${LUAJIT_VERSION}.tar.gz /tmp/luajit/
+ADD https://github.com/openresty/luajit2/archive/v${LUAJIT_MAIN_VERSION}.zip /tmp/luajit/
 ADD https://github.com/simpl/ngx_devel_kit/archive/v${NGINX_DEVEL_KIT_VERSION}.tar.gz /tmp/luajit/${NGINX_DEVEL_KIT}.tar.gz
 ADD https://github.com/openresty/lua-nginx-module/archive/v${LUA_NGINX_MODULE_VERSION}.tar.gz /tmp/luajit/${LUA_NGINX_MODULE}.tar.gz
 ADD https://github.com/yaoweibin/nginx_upstream_check_module/archive/${UPSTREAM_HC_VERSION}.tar.gz /tmp/luajit/${UPSTREAM_HC_MODULE}.tar.gz
@@ -32,16 +32,16 @@ ADD https://cloudflare.cdn.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_
 ADD https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz /tmp/src/nginx.tar.gz
 
 RUN \
-  build_pkgs="build-base linux-headers pcre-dev curl zlib-dev geoip-dev libxslt-dev perl-dev gd-dev" \
+  build_pkgs="build-base linux-headers pcre-dev curl zlib-dev geoip-dev libxslt-dev perl-dev gd-dev unzip" \
   && runtime_pkgs="ca-certificates pcre zlib gd geoip libxslt libgcc certbot certbot-nginx" \
   && apk --no-cache add ${runtime_pkgs} ${build_pkgs} \
   && cd /tmp/luajit \
-  && tar -xzvf LuaJIT-${LUAJIT_VERSION}.tar.gz && rm LuaJIT-${LUAJIT_VERSION}.tar.gz \
+  && unzip v${LUAJIT_MAIN_VERSION}.zip && rm v${LUAJIT_MAIN_VERSION}.zip \
   && tar -xzvf ${NGINX_DEVEL_KIT}.tar.gz && rm ${NGINX_DEVEL_KIT}.tar.gz \
   && tar -xzvf ${LUA_NGINX_MODULE}.tar.gz && rm ${LUA_NGINX_MODULE}.tar.gz \
   && tar -xzvf ${UPSTREAM_HC_MODULE}.tar.gz && rm ${UPSTREAM_HC_MODULE}.tar.gz \
   && tar -xzvf ${NGINX_RTMP_MODULE}.tar.gz && rm ${NGINX_RTMP_MODULE}.tar.gz \
-  && cd /tmp/luajit/LuaJIT-${LUAJIT_VERSION} \
+  && cd /tmp/luajit/luajit2-${LUAJIT_MAIN_VERSION} \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
   && cd /tmp/libressl \
