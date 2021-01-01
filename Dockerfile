@@ -49,6 +49,7 @@ RUN \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
   && cd /tmp/luajit/lua-resty-core-${OPENRESTY_VERSION} \
   && make install \
+  && cd /usr/local/lib/lua/5.1 && ln -s ../resty . && ln -s ../ngx . \
   && cd /tmp/libressl \
   && tar -zxf libressl.tar.gz \
   && cd /tmp/src \
