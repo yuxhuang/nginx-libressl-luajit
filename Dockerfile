@@ -59,7 +59,7 @@ RUN \
     --group=r \
     --sbin-path=/usr/sbin/nginx \
     --with-cc-opt='-O3 -s' \
-    --with-ld-opt='-Wl,-static,-lluajit-5.1 -Wl,-Bdynamic,-ldl,-lz' \
+    --with-ld-opt='-Wl,-Bdynamic,-ldl,-lz' \
     --with-http_ssl_module \
     --with-openssl=/tmp/libressl/libressl-${LIBRESSL_VERSION} \
     --with-http_realip_module \
