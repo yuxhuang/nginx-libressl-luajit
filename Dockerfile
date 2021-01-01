@@ -87,7 +87,6 @@ RUN \
     --error-log-path=/var/log/nginx/error.log \
     --add-module=/tmp/luajit/$UPSTREAM_HC_MODULE \
     --add-module=/tmp/luajit/$NGINX_DEVEL_KIT \
-    --add-module=/tmp/luajit/$LUA_NGINX_MODULE \
     --add-module=/tmp/luajit/${NGINX_RTMP_MODULE} \
   && make -j $(getconf _NPROCESSORS_ONLN) \
   && make install \
