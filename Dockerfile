@@ -47,8 +47,6 @@ RUN \
   && cd /tmp/luajit/luajit2-${LUAJIT_MAIN_VERSION} \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
-  && cd /tmp/luajit/lua-resty-core-${OPENRESTY_VERSION} \
-  && cp -rv ./lib/resty ./lib/ngx /usr/local/share/luajit-2.1.0-beta3 \
   && cd /tmp/libressl \
   && tar -zxf libressl.tar.gz \
   && cd /tmp/src \
