@@ -5,12 +5,12 @@ ARG NGINX_VERSION=1.18.0
 ARG LIBRESSL_VERSION=3.2.3
 
 ARG NGINX_DEVEL_KIT_VERSION=0.3.1
-ARG LUA_NGINX_MODULE_VERSION=0.10.15
+ARG LUA_NGINX_MODULE_VERSION=0.10.17
 ARG LUAJIT_MAIN_VERSION=2.1-agentzh
 ARG LUAJIT_VERSION=2.1.0-beta3
 ARG NGINX_RTMP_MODULE_VERSION=1.2.1
 ARG UPSTREAM_HC_VERSION=master
-ARG OPENRESTY_VERSION=0.1.21
+ARG OPENRESTY_VERSION=0.1.19
 
 ARG NGINX_DEVEL_KIT=ngx_devel_kit-${NGINX_DEVEL_KIT_VERSION}
 ARG LUA_NGINX_MODULE=lua-nginx-module-${LUA_NGINX_MODULE_VERSION}
@@ -48,8 +48,7 @@ RUN \
   && make -j $(getconf _NPROCESSORS_ONLN) && make install \
   && rm -f $LUAJIT_LIB/libluajit-*.so* \
   && cd /tmp/luajit/lua-resty-core-${OPENRESTY_VERSION} \
-  && make install \
-  && cd /usr/local/share/luajit-2.1.0-beta3 && cp -rv ../resty . && cp -rv ../ngx . \
+  && cp -rv ./lib/resty ./lib/ngx /usr/local/share/luajit-2.1.0-beta3 \
   && cd /tmp/libressl \
   && tar -zxf libressl.tar.gz \
   && cd /tmp/src \
