@@ -13,5 +13,5 @@ The following example is what I use to serve my [blog](https://enginepit.com/).
      -v /data/www:/data/www\
      -e EUID=$(id -u www-data)\
      -e EGID=$(id -g www-data)\
-     -d --name nginx yuxhuang/alpine-libressl-luajit-nginx:mainline
+     -d --name nginx yuxhuang/alpine-libressl-luajit-nginx:latest
 ```
